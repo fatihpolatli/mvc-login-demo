@@ -13,15 +13,17 @@ public class WebConfig  implements WebFluxConfigurer {
 
 	@Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
-        registry.freeMarker();
+       // registry.
     }
+	
+	@Override
+	public void addViewControllers(final ViewControllerRegistry registry) {
+		super.addViewControllers(registry);
+		registry.addViewController("/").setViewName("forward:/login");
+		registry.addViewController("/register.html");
 
-    // Configure Freemarker...
+	}
 
-    @Bean
-    public FreeMarkerConfigurer freeMarkerConfigurer() {
-        FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
-        configurer.setTemplateLoaderPath("classpath:/public");
-        return configurer;
-    }
+    
+   
 }
