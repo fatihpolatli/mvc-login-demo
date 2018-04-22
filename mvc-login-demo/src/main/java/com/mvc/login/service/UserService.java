@@ -1,7 +1,5 @@
 package com.mvc.login.service;
 
-import java.util.Arrays;
-
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.mvc.login.dto.UserDto;
 import com.mvc.login.entity.User;
+import com.mvc.login.exception.DuplicateEmailException;
 import com.mvc.login.repository.UserRepository;
 
 @Service
@@ -26,8 +25,7 @@ public class UserService implements IUserService {
       throws Exception {
          
         if (emailExist(accountDto.getEmail())) {   
-            throw new Exception(
-              "There is an account with that email address:  "+ accountDto.getEmail());
+        	throw new DuplicateEmailException();
         }
         User user = new User();    
         user.setUsername(accountDto.getFirstName());
@@ -38,7 +36,7 @@ public class UserService implements IUserService {
         return repository.save(user);       
     }
 
-	private boolean emailExist(String email) {
+	private boolean emailExist(String email) throws DuplicateEmailException {
 		User user = repository.findByEmail(email);
 		if (user != null) {
 			return true;
@@ -46,6 +44,8 @@ public class UserService implements IUserService {
 		return false;
 	}
 	
+	
+
 	@Override
 	public User findByUserName(String username) {
 		
