@@ -2,31 +2,34 @@ package com.mvc.login.mvclogindemo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.response.Response;
 import com.mvc.login.config.MvcLoginDemoApplication;
 import com.mvc.login.controller.RegistrationController;
 import com.mvc.login.dto.UserDto;
@@ -62,7 +65,7 @@ public class MvcLoginDemoApplicationTests {
 		UserDto accountDto = new UserDto();
 		accountDto.setFirstName("testUser");
 		accountDto.setPassword("test");
-		accountDto.setEmail("test@test.com");
+		accountDto.setEmail("test1@test.com");
 
 		userService.registerNewUserAccount(accountDto);
 
@@ -75,42 +78,68 @@ public class MvcLoginDemoApplicationTests {
 		this.mockMvc.perform(get("/restful/test")).andDo(print()).andExpect(status().isOk())
 				.andExpect(content().string(containsString("this is test")));
 	}
-	
-	
 
 	@Test
-	public void givenDuplicateEmail_thenBadRequest() throws Exception {
-		
-		getResponseForPasswordOk("test@test.com");
-		
-		getResponseForPassword("test@test.com");
+	public void successfulRegistrationTest() throws Exception {
 
-		
+		getResponseForPasswordOk("test123", "test2@test.com", "Test200400.");
+
 	}
 
-	private void getResponseForPassword(String email) throws Exception {
-		final Map<String, String> param = new HashMap<String, String>();
-		final String randomName = UUID.randomUUID().toString();
-		param.put("firstName", randomName);
-		param.put("lastName", "Doe");
-		param.put("email", email);
-		param.put("password", "12345");
-		
-		this.mockMvc.perform(post("/user/registration",param)).andDo(print()).andExpect(status().isBadRequest());
-		
-		
+	@Test
+	public void shortNameTest() throws Exception {
+
+		getResponseForPassword("te", "test3@test.com", "Test200400.");
+
 	}
 	
-	private void getResponseForPasswordOk(String email) throws Exception {
-		final Map<String, String> param = new HashMap<String, String>();
-		final String randomName = UUID.randomUUID().toString();
-		param.put("firstName", randomName);
-		param.put("lastName", "Doe");
-		param.put("email", email);
-		param.put("password", "12345");
+	@Test
+	public void emailTest() throws Exception {
+
+		getResponseForPassword("teest1234", "test3", "Test200400.");
+
+	}
+	
+	@Test
+	public void passwordTest() throws Exception {
+
+		getResponseForPassword("teest1234", "test4@test.com", "Test20");
+
+	}
+	
+	
+	
+	private void getResponseForPassword(String name, String email, String password) throws Exception {
 		
-		this.mockMvc.perform(post("/user/registration",param)).andDo(print()).andExpect(status().isOk());
+		this.mockMvc.perform(post("/user/registration")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+	            .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+	                    new BasicNameValuePair("firstName", name),
+	                    new BasicNameValuePair("email", email),
+	                    new BasicNameValuePair("password", password),
+	                    new BasicNameValuePair("matchingPassword", password)
+	            )))))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.error", is("error")));
+
+	}
+
+	private void getResponseForPasswordOk(String name, String email, String password) throws Exception {
 		
+
+		this.mockMvc.perform(post("/user/registration")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+	            .content(EntityUtils.toString(new UrlEncodedFormEntity(Arrays.asList(
+	                    new BasicNameValuePair("firstName", name),
+	                    new BasicNameValuePair("email", email),
+	                    new BasicNameValuePair("password", password),
+	                    new BasicNameValuePair("matchingPassword", password)
+	            )))))
+			.andDo(print())
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.message", is("success")));
+
 	}
 
 }

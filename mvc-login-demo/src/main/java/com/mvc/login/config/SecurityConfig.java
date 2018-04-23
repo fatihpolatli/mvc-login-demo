@@ -60,9 +60,9 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
 		
         http
             .authorizeRequests()
-                .antMatchers("/", "/home","/restful/**","/register","/registration*","/registration.html","/user/registration*").permitAll()             
+                .antMatchers("/", "/home","/restful/**","/register","/registration*","/registration.html","/user/registration*","/successRegister.html","/successRegister*").permitAll()             
                 .anyRequest().authenticated()
-                .and().formLogin().loginPage("/login")
+                .and().formLogin().loginPage("/login").successForwardUrl("/home.html")
                 .permitAll();
              
     }
