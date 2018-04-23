@@ -10,4 +10,6 @@ public interface IUserService {
 
 	User findByUserName(String username);
 
+	User createUserAccount(UserDto accountDto);
+
 }
