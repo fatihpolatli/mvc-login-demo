@@ -1,4 +1,5 @@
-package com.mvc.login.mvclogindemo;
+package com.mvc.login;
+/*package com.mvc.login.mvclogindemo;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,3 +42,4 @@ public class MvcLoginDemoApplicationTests {
 	}
 
 }
+*/
